@@ -9,11 +9,16 @@ CLASS ztl_cl_global DEFINITION
 
     CONSTANTS: c_msgid_ztools TYPE arbgb VALUE 'ZTOOLS',
 
-               c_rng_sgn_include TYPE t_range_sign VALUE 'I',
-               c_rng_sgn_exclude TYPE t_range_sign VALUE 'E',
-               c_rng_opt_equals TYPE t_range_option VALUE 'EQ',
-               c_rng_opt_between TYPE t_range_option VALUE 'BT',
-               c_rng_opt_contains_pattern TYPE t_range_option VALUE 'CP',
+               BEGIN OF e_range_signs,
+                 include TYPE t_range_sign VALUE 'I',
+                 exclude TYPE t_range_sign VALUE 'E',
+               END OF e_range_signs,
+
+               BEGIN OF e_range_options,
+                 equals TYPE t_range_option VALUE 'EQ',
+                 between TYPE t_range_option VALUE 'BT',
+                 contains_pattern TYPE t_range_option VALUE 'CP',
+               END OF e_range_options,
 
                c_comment_line TYPE c VALUE '*',
 
@@ -21,14 +26,14 @@ CLASS ztl_cl_global DEFINITION
 
     CLASS-METHODS: check_parameter_value_valid
       IMPORTING
-        i_value TYPE ANY
-        i_valid_values TYPE TABLE
-        i_parameter_name TYPE string OPTIONAL
+        iv_value TYPE ANY
+        it_valid_values TYPE TABLE
+        iv_parameter_name TYPE string OPTIONAL
       RAISING
         zcx_invalid_parameters.
   PROTECTED SECTION.
   PRIVATE SECTION.
-    CONSTANTS: c_regex_i_value_parameter TYPE string VALUE '^.*I_VALUE.*= *([^ ]*)'.
+    CONSTANTS: c_regex_i_value_parameter TYPE string VALUE '^.*IV_VALUE.*= *([^ ]*)'.
 ENDCLASS.
 
 
@@ -49,8 +54,8 @@ CLASS ZTL_CL_GLOBAL IMPLEMENTATION.
 
           l_parameter_name TYPE sychar50.
 
-    IF NOT i_value IN i_valid_values.
-      IF NOT i_parameter_name IS SUPPLIED.
+    IF NOT iv_value IN it_valid_values.
+      IF NOT iv_parameter_name IS SUPPLIED.
         CALL METHOD cl_abap_get_call_stack=>get_call_stack
           RECEIVING
             stack = li_stack.
@@ -81,7 +86,7 @@ CLASS ZTL_CL_GLOBAL IMPLEMENTATION.
           ENDLOOP.
         ENDIF.
       ELSE.
-        l_parameter_name = i_parameter_name.
+        l_parameter_name = iv_parameter_name.
       ENDIF.
 
       CREATE OBJECT lcx_invalid_parameters
